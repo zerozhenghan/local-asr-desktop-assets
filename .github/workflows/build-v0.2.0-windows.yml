@@ -1,0 +1,89 @@
+name: Build TingJian v0.2.0 Windows installer
+
+on:
+  push:
+    branches: [release/v0.2.0-windows]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          path: release
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: zerozhenghan/local-asr-desktop
+          ref: 38447275cea3f7836cd0568ff19d635da0adb555
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.18.0'
+          architecture: x64
+      - name: Install existing locked build dependencies
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          npm ci --no-audit --no-fund
+      - name: Build Windows offline runtime
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          & .\packaging\build-runtime-windows.ps1
+      - name: Prepare the pinned model bundle
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          python ..\release\build-v0.2.0\prepare-models.py .build\release-models
+          python packaging\prepare-bundled-runtime.py --runtime-dir .build\runtime-sensevoice-win32-x64\dist\local-asr-sidecar --model-dir .build\release-models --destination .build\bundled-asr
+      - name: Package Windows x64 installer without publishing
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          npm run dist:win -- --publish never
+      - name: Record installer checksum and build provenance
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path deliverables | Out-Null
+          $name = 'TingJian-0.2.0-Windows-x64-Setup.exe'
+          Copy-Item "source\dist\installers\$name" "deliverables\$name"
+          $file = Get-Item "deliverables\$name"
+          $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $name" | Set-Content deliverables\SHA256SUMS.txt -Encoding utf8NoBOM
+          @{
+            version = '0.2.0'
+            platform = 'win32-x64'
+            sourceCommit = '38447275cea3f7836cd0568ff19d635da0adb555'
+            recipeCommit = '${{ github.sha }}'
+            buildRun = 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            file = $name
+            sizeBytes = $file.Length
+            sha256 = $hash
+            installationTestPerformed = $false
+            transcriptionTestPerformed = $false
+            signed = $false
+          } | ConvertTo-Json | Set-Content deliverables\build-info.json -Encoding utf8NoBOM
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: TingJian-0.2.0-Windows-x64
+          path: deliverables/*
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0

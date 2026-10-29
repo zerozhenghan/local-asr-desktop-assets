@@ -1,0 +1,48 @@
+{
+  "sensevoice": {
+    "source": "https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17",
+    "revision": "2365baeacb507f821a0c8120fcee3d484dba7a07",
+    "original_model": "https://huggingface.co/FunAudioLLM/SenseVoiceSmall",
+    "license": "https://github.com/modelscope/FunASR/blob/main/MODEL_LICENSE"
+  },
+  "punctuation": {
+    "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/punctuation-models/sherpa-onnx-punct-ct-transformer-zh-en-vocab272727-2024-04-12-int8.tar.bz2",
+    "archive_sha256": "c0d5aa5f8eeb686032345e180bedf39319dc2e0556781c6264bcadba8328a6e1",
+    "license": "https://github.com/modelscope/FunASR/blob/main/MODEL_LICENSE"
+  },
+  "recognition_options": {
+    "language": "zh",
+    "use_itn": false,
+    "provider": "cpu"
+  },
+  "files": {
+    "LICENSE": {
+      "bytes": 71,
+      "sha256": "221c6df10b0931a5629adad671ea48fb7747e034c414b6d2bfa275bc3dd4ea17"
+    },
+    "MODEL_LICENSE": {
+      "bytes": 5306,
+      "sha256": "7dba975a2069691db4992b0592d70828b330d2f8a30a71450f4e152a554e84f8"
+    },
+    "PUNCTUATION_CODE_LICENSE": {
+      "bytes": 1061,
+      "sha256": "f382b62dcc61fc566b9215b1e3b604b539bfd96ed52ae1eeff5090f6dc176057"
+    },
+    "PUNCTUATION_MODEL_LICENSE": {
+      "bytes": 5306,
+      "sha256": "7dba975a2069691db4992b0592d70828b330d2f8a30a71450f4e152a554e84f8"
+    },
+    "model.int8.onnx": {
+      "bytes": 239233841,
+      "sha256": "c71f0ce00bec95b07744e116345e33d8cbbe08cef896382cf907bf4b51a2cd51"
+    },
+    "punctuation.int8.onnx": {
+      "bytes": 75519198,
+      "sha256": "65a3fb9f5ad7bfb96bf69e0dc4481df97f6ee60513c1d94ce981ba6effd524b1"
+    },
+    "tokens.txt": {
+      "bytes": 315894,
+      "sha256": "f449eb28dc567533d7fa59be34e2abca8784f771850c78a47fb731a31429a1dc"
+    }
+  }
+}
